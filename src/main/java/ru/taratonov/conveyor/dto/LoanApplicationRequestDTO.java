@@ -25,7 +25,7 @@ public class LoanApplicationRequestDTO {
     @DecimalMin(value = "10000.0", message = "must be greater or equal than 10000")
     private BigDecimal amount;
 
-    @Min(6)
+    @Min(value = 6, message = "must be greater or equal than 6")
     private Integer term;
 
     @Pattern(regexp = "^[a-zA-Zа-яА-Я]+$", message = "must include only letters")
@@ -40,7 +40,7 @@ public class LoanApplicationRequestDTO {
     @Size(min = 2, max = 30, message = "must be in range from 2 to 30 symbols")
     private String middleName;
 
-    @Pattern(regexp = "[\\w\\.]{2,50}@[\\w\\.]{2,20}",message = "doesn't match the right format")
+    @Pattern(regexp = "[\\w\\.]{2,50}@[\\w\\.]{2,20}", message = "doesn't match the right format")
     private String email;
 
     @NotNull(message = "must not be empty")
