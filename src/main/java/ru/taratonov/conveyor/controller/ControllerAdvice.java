@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.taratonov.conveyor.dto.ErrorDTO;
+import ru.taratonov.conveyor.exception.IllegalArgumentOfEnumException;
 import ru.taratonov.conveyor.exception.ScoringException;
 
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ public class ControllerAdvice {
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({MethodArgumentNotValidException.class})
-    protected List<ErrorDTO> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    public List<ErrorDTO> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         List<ErrorDTO> errors = new ArrayList<>();
         ex.getBindingResult().getFieldErrors().forEach(e ->
                 errors.add(new ErrorDTO(e.getField() + " " + e.getDefaultMessage(), LocalDateTime.now(), HttpStatus.BAD_REQUEST)));
@@ -29,16 +30,17 @@ public class ControllerAdvice {
 
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({DateTimeParseException.class})
-    public ErrorDTO handleDateTimeParseException(Exception ex) {
-        return new ErrorDTO(ex.getCause().getCause().getMessage(), LocalDateTime.now(), HttpStatus.BAD_REQUEST);
+    @ExceptionHandler({ScoringException.class})
+    public ErrorDTO handleOtherException(RuntimeException ex) {
+        return new ErrorDTO(ex.getMessage(), LocalDateTime.now(), HttpStatus.BAD_REQUEST);
     }
 
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({ScoringException.class})
-    public ErrorDTO handleScoringException(Exception ex) {
-        return new ErrorDTO(ex.getMessage(), LocalDateTime.now(), HttpStatus.BAD_REQUEST);
+    @ExceptionHandler({IllegalArgumentOfEnumException.class, DateTimeParseException.class})
+    public ErrorDTO handleLongException(RuntimeException ex) {
+        return new ErrorDTO(ex.getCause().getCause().getMessage(), LocalDateTime.now(), HttpStatus.BAD_REQUEST);
     }
+
 
 }
