@@ -1,5 +1,6 @@
 package ru.taratonov.conveyor.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.taratonov.conveyor.dto.EmploymentDTO;
@@ -21,6 +22,7 @@ import static ru.taratonov.conveyor.enums.MaritalStatus.MARRIED;
 import static ru.taratonov.conveyor.enums.Position.MANAGER;
 import static ru.taratonov.conveyor.enums.Position.TOP_MANAGER;
 
+@Slf4j
 @Service
 public class ScoringService {
 
@@ -28,7 +30,7 @@ public class ScoringService {
     private BigDecimal baseRate;
 
     public BigDecimal scoringPerson(ScoringDataDTO scoringData) {
-
+        log.info("!START SCORING PERSON {} {}!", scoringData.getFirstName(), scoringData.getLastName());
         BigDecimal personalRate = scoringPerson(scoringData.getIsInsuranceEnabled(),
                 scoringData.getIsSalaryClient());
 
@@ -99,6 +101,8 @@ public class ScoringService {
             exceptions.add("Current experience less than 3 months");
         }
 
+        log.info("!FINISH PERSON SCORING!");
+
         if (exceptions.size() > 0) {
             throw ScoringException.createWith(exceptions);
         }
@@ -107,17 +111,21 @@ public class ScoringService {
             personalRate = BigDecimal.valueOf(0.1);
         }
 
+        log.info("Personal rate after scoring is {}", personalRate);
         return personalRate;
     }
 
     public BigDecimal scoringPerson(boolean isInsuranceEnabled, boolean isSalaryClient) {
+        log.info("!BASE PERSON SCORING!");
         BigDecimal personalRate = baseRate;
+        log.info("BASE RATE IN OUR BANK IS {}", baseRate);
         if (isInsuranceEnabled) {
             personalRate = personalRate.subtract(BigDecimal.valueOf(3));
         }
         if (isSalaryClient) {
             personalRate = personalRate.subtract(BigDecimal.valueOf(1));
         }
+        log.info("!FINISH BASE SCORING. Base personal rate is ready - {}", personalRate);
         return personalRate;
     }
 }
