@@ -39,19 +39,20 @@ public class OfferService {
         BigDecimal amount = loanApplicationRequest.getAmount();
         Integer term = loanApplicationRequest.getTerm();
         BigDecimal rate = scoringService.scoringPerson(isInsuranceEnabled, isSalaryClient);
+        BigDecimal totalAmount = creditCalculationService.calculateTotalAmount(amount, isInsuranceEnabled);
 
         LoanOfferDTO loanOfferDTO = new LoanOfferDTO()
                 .setApplicationId(null)
                 .setRequestedAmount(amount)
-                .setTotalAmount(creditCalculationService.calculateTotalAmount(amount, isInsuranceEnabled))
+                .setTotalAmount(totalAmount)
                 .setTerm(term)
-                .setMonthlyPayment(creditCalculationService.calculateMonthlyPayment(amount, rate, term))
+                .setMonthlyPayment(creditCalculationService.calculateMonthlyPayment(totalAmount, rate, term))
                 .setRate(rate)
                 .setIsInsuranceEnabled(isInsuranceEnabled)
                 .setIsSalaryClient(isSalaryClient);
         log.info("Offer is ready. " +
-                "Calculated data: id - {}, requestedAmount - {}, totalAmount - {}, term - {}, " +
-                "monthlyPayment - {}, rate - {}, isInsuranceEnabled - {}, isSalaryClient - {}",
+                        "Calculated data: id - {}, requestedAmount - {}, totalAmount - {}, term - {}, " +
+                        "monthlyPayment - {}, rate - {}, isInsuranceEnabled - {}, isSalaryClient - {}",
                 loanOfferDTO.getApplicationId(), loanOfferDTO.getRequestedAmount(),
                 loanOfferDTO.getTotalAmount(), loanOfferDTO.getTerm(), loanOfferDTO.getMonthlyPayment(),
                 loanOfferDTO.getRate(), loanOfferDTO.getIsInsuranceEnabled(), loanOfferDTO.getIsSalaryClient());

@@ -22,9 +22,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class LoanApplicationRequestDTO {
 
+    @NotNull(message = "must not be empty")
     @DecimalMin(value = "10000.0", message = "must be greater or equal than 10000")
     private BigDecimal amount;
 
+    @NotNull(message = "must not be empty")
     @Min(value = 6, message = "must be greater or equal than 6")
     private Integer term;
 
@@ -40,6 +42,7 @@ public class LoanApplicationRequestDTO {
     @Size(min = 2, max = 30, message = "must be in range from 2 to 30 symbols")
     private String middleName;
 
+    @NotNull(message = "must not be empty")
     @Pattern(regexp = "[\\w\\.]{2,50}@[\\w\\.]{2,20}", message = "doesn't match the right format")
     private String email;
 
@@ -47,10 +50,12 @@ public class LoanApplicationRequestDTO {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthdate;
 
+    @NotNull(message = "must not be empty")
     @Pattern(regexp = "\\d+", message = "must include only numbers")
     @Size(min = 4, max = 4, message = "must be 4 digits long")
     private String passportSeries;
 
+    @NotNull(message = "must not be empty")
     @Pattern(regexp = "\\d+", message = "must include only numbers")
     @Size(min = 6, max = 6, message = "must be 6 digits long")
     private String passportNumber;
