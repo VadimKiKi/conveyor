@@ -70,7 +70,9 @@ public class ScoringDataDTO {
     @NotNull(message = "must not be empty")
     private String account;
 
+    @NotNull
     private Boolean isInsuranceEnabled;
 
+    @NotNull
     private Boolean isSalaryClient;
 }

@@ -23,6 +23,11 @@ public class CreditCalculationService {
 
     // Вычисление необходимых полей для заявки клиента
     public CreditDTO calculateLoanParameters(ScoringDataDTO scoringData, BigDecimal newRate) {
+
+        if (newRate.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Invalid value");
+        }
+
         BigDecimal amount = calculateTotalAmount(scoringData.getAmount(), scoringData.getIsInsuranceEnabled());
 
         Integer term = scoringData.getTerm();
@@ -45,6 +50,11 @@ public class CreditCalculationService {
     // Вычисление ежемесячного платежа
     public BigDecimal calculateMonthlyPayment(BigDecimal amount, BigDecimal rate, Integer term) {
         log.info("!START CALCULATE MONTHLY PAYMENT WITH AMOUNT - {}, RATE - {}, TERM - {}!", amount, rate, term);
+
+        if (amount.compareTo(BigDecimal.ZERO) < 0 || rate.compareTo(BigDecimal.ZERO) < 0 || term < 0) {
+            throw new IllegalArgumentException("Invalid value");
+        }
+
         // Месячная процентная ставка
         BigDecimal monthlyRate = rate
                 .divide(BigDecimal.valueOf(100), 6, RoundingMode.CEILING)
@@ -71,6 +81,10 @@ public class CreditCalculationService {
     // Вычисление графиков платежей
     public List<PaymentScheduleElement> calculatePaymentSchedule(BigDecimal amount, Integer term, BigDecimal rate) {
         log.info("!START CALCULATE PAYMENT SCHEDULE WITH AMOUNT - {}, TERM - {},  RATE - {}!", amount, term, rate);
+
+        if (amount.compareTo(BigDecimal.ZERO) < 0 || rate.compareTo(BigDecimal.ZERO) < 0 || term < 0) {
+            throw new IllegalArgumentException("Invalid value");
+        }
 
         List<PaymentScheduleElement> paymentSchedule = new ArrayList<>();
 
@@ -125,6 +139,11 @@ public class CreditCalculationService {
     // Вычисление полной стоимости кредита с учетом страховки
     public BigDecimal calculateTotalAmount(BigDecimal amount, Boolean IsInsuranceEnabled) {
         log.info("!START CALCULATE BASE TOTAL AMOUNT WITH AMOUNT - {}, IsInsuranceEnabled - {}!", amount, IsInsuranceEnabled);
+
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Invalid value");
+        }
+
         if (IsInsuranceEnabled) {
             amount = amount
                     .add(amount.multiply(INSURANCE_PERCENTAGE.divide(BigDecimal.valueOf(100), 2, RoundingMode.CEILING)));
@@ -138,6 +157,12 @@ public class CreditCalculationService {
                                                 Integer numOfDaysInYear) {
         log.info("!START CALCULATE INTEREST PAYMENT WITH remainingDebt - {}, rate - {}, numOfDaysInMonth - {}, " +
                 "numOfDaysInYear - {}!", remainingDebt, rate, numOfDaysInMonth, numOfDaysInYear);
+
+        if (remainingDebt.compareTo(BigDecimal.ZERO) < 0 || rate.compareTo(BigDecimal.ZERO) < 0 || numOfDaysInMonth < 27
+                || numOfDaysInMonth > 31 || numOfDaysInYear < 365 || numOfDaysInYear > 366) {
+            throw new IllegalArgumentException("Invalid value");
+        }
+
         BigDecimal rateValue = rate.divide(BigDecimal.valueOf(100), 6, RoundingMode.CEILING);
 
         BigDecimal interestPayment = remainingDebt
@@ -154,6 +179,10 @@ public class CreditCalculationService {
         log.info("!START CALCULATE DEBT PAYMENT WITH totalPayment - {}, interestPayment - {}!",
                 totalPayment, interestPayment);
 
+        if (totalPayment.compareTo(BigDecimal.ZERO) < 0 || interestPayment.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Invalid value");
+        }
+
         BigDecimal debtPayment = totalPayment.subtract(interestPayment).setScale(2, RoundingMode.CEILING);
         log.info("!FINISH CALCULATE DEBT PAYMENT. RESULT IS {}!", debtPayment);
 
@@ -164,6 +193,11 @@ public class CreditCalculationService {
     private BigDecimal calculateRemainingDebt(BigDecimal amount, BigDecimal debtPayment) {
         log.info("!START CALCULATE REMAINING DEBT WITH amount - {}, debtPayment - {}!",
                 amount, debtPayment);
+
+        if (amount.compareTo(BigDecimal.ZERO) < 0 || debtPayment.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Invalid value");
+        }
+
         BigDecimal remainingDebt = amount.subtract(debtPayment).setScale(2, RoundingMode.CEILING);
         log.info("!FINISH CALCULATE REMAINING DEBT. RESULT IS {}!", remainingDebt);
 

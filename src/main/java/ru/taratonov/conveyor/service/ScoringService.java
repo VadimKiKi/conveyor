@@ -28,6 +28,8 @@ public class ScoringService {
 
     @Value("${base.rate}")
     private BigDecimal baseRate;
+    private final BigDecimal INSURANCE_RATE_REDUCTION = BigDecimal.valueOf(3);
+    private final BigDecimal SALARY_RATE_REDUCTION = BigDecimal.valueOf(1);
 
     public BigDecimal scoringPerson(ScoringDataDTO scoringData) {
         log.info("!START SCORING PERSON {} {}!", scoringData.getFirstName(), scoringData.getLastName());
@@ -120,10 +122,13 @@ public class ScoringService {
         BigDecimal personalRate = baseRate;
         log.info("BASE RATE IN OUR BANK IS {}", baseRate);
         if (isInsuranceEnabled) {
-            personalRate = personalRate.subtract(BigDecimal.valueOf(3));
+            personalRate = personalRate.subtract(INSURANCE_RATE_REDUCTION);
         }
         if (isSalaryClient) {
-            personalRate = personalRate.subtract(BigDecimal.valueOf(1));
+            personalRate = personalRate.subtract(SALARY_RATE_REDUCTION);
+        }
+        if (personalRate.compareTo(BigDecimal.ZERO) <= 0) {
+            personalRate = BigDecimal.valueOf(0.1);
         }
         log.info("!FINISH BASE SCORING. Base personal rate is ready - {}", personalRate);
         return personalRate;

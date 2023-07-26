@@ -33,7 +33,7 @@ public class ControllerAdvice {
 
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({ScoringException.class})
+    @ExceptionHandler({ScoringException.class, IllegalArgumentException.class})
     public ErrorDTO handleOtherException(RuntimeException ex) {
         log.error("Handle ScoringException", ex);
         return new ErrorDTO(ex.getMessage(), LocalDateTime.now(), HttpStatus.BAD_REQUEST);
