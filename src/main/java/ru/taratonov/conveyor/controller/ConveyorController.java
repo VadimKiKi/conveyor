@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,14 +25,10 @@ import java.util.List;
 
 @RequestMapping("/conveyor")
 @Tag(name = "Conveyor Controller", description = "Managing loan offers")
+@RequiredArgsConstructor
 public class ConveyorController {
 
     private final ConveyorService conveyorService;
-
-    @Autowired
-    public ConveyorController(ConveyorService conveyorService) {
-        this.conveyorService = conveyorService;
-    }
 
     @PostMapping("/offers")
     @Operation(summary = "Get loan offers", description = "Allows to get 4 loan offers for person")

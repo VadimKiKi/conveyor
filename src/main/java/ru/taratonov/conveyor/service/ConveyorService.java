@@ -1,6 +1,6 @@
 package ru.taratonov.conveyor.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.taratonov.conveyor.dto.CreditDTO;
 import ru.taratonov.conveyor.dto.LoanApplicationRequestDTO;
@@ -10,18 +10,12 @@ import ru.taratonov.conveyor.dto.ScoringDataDTO;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ConveyorService {
 
     private final ScoringService scoringService;
     private final CreditCalculationService creditCalculationService;
     private final OfferService offerService;
-
-    @Autowired
-    public ConveyorService(ScoringService scoringService, CreditCalculationService creditCalculationService, OfferService offerService) {
-        this.scoringService = scoringService;
-        this.creditCalculationService = creditCalculationService;
-        this.offerService = offerService;
-    }
 
     public List<LoanOfferDTO> getOffers(LoanApplicationRequestDTO loanApplicationRequest) {
         return offerService.createOffers(loanApplicationRequest);

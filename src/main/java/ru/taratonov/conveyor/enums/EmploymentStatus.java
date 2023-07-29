@@ -18,8 +18,8 @@ public enum EmploymentStatus {
                 .findFirst()
                 .orElseThrow(() -> IllegalArgumentOfEnumException.createWith(
                         Arrays.stream(EmploymentStatus.values())
-                        .map(EmploymentStatus::getTitle)
-                        .collect(Collectors.toList())));
+                                .map(EmploymentStatus::getTitle)
+                                .collect(Collectors.toList())));
     }
 
     private String title;

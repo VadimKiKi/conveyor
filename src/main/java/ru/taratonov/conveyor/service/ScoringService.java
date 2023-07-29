@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.taratonov.conveyor.dto.EmploymentDTO;
 import ru.taratonov.conveyor.dto.ScoringDataDTO;
-import ru.taratonov.conveyor.enums.Gender;
 import ru.taratonov.conveyor.exception.ScoringException;
 
 import java.math.BigDecimal;
@@ -14,25 +13,19 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.taratonov.conveyor.enums.EmploymentStatus.BUSINESS_OWNER;
-import static ru.taratonov.conveyor.enums.EmploymentStatus.SELF_EMPLOYED;
-import static ru.taratonov.conveyor.enums.EmploymentStatus.UNEMPLOYED;
-import static ru.taratonov.conveyor.enums.MaritalStatus.DIVORCED;
-import static ru.taratonov.conveyor.enums.MaritalStatus.MARRIED;
-import static ru.taratonov.conveyor.enums.Position.MANAGER;
-import static ru.taratonov.conveyor.enums.Position.TOP_MANAGER;
-
 @Slf4j
 @Service
 public class ScoringService {
 
     @Value("${base.rate}")
     private BigDecimal baseRate;
-    private final BigDecimal INSURANCE_RATE_REDUCTION = BigDecimal.valueOf(3);
-    private final BigDecimal SALARY_RATE_REDUCTION = BigDecimal.valueOf(1);
+    @Value("${insurance.rate.reduction}")
+    private BigDecimal INSURANCE_RATE_REDUCTION;
+    @Value("${salary.rate.reduction}")
+    private BigDecimal SALARY_RATE_REDUCTION;
 
     public BigDecimal scoringPerson(ScoringDataDTO scoringData) {
-        log.info("!START SCORING PERSON {} {}!", scoringData.getFirstName(), scoringData.getLastName());
+        log.debug("!START SCORING PERSON {} {}!", scoringData.getFirstName(), scoringData.getLastName());
         BigDecimal personalRate = scoringPerson(scoringData.getIsInsuranceEnabled(),
                 scoringData.getIsSalaryClient());
 
@@ -41,20 +34,16 @@ public class ScoringService {
         EmploymentDTO employment = scoringData.getEmployment();
 
         // EmploymentStatus
-        if (employment.getEmploymentStatus().equals(UNEMPLOYED)) {
-            exceptions.add("Don't issue a loan to the unemployed");
-        } else if (employment.getEmploymentStatus().equals(SELF_EMPLOYED)) {
-            personalRate = personalRate.add(BigDecimal.valueOf(1));
-        } else if (employment.getEmploymentStatus().equals(BUSINESS_OWNER)) {
-            personalRate = personalRate.add(BigDecimal.valueOf(3));
+        switch (employment.getEmploymentStatus()) {
+            case UNEMPLOYED -> exceptions.add("Don't issue a loan to the unemployed");
+            case SELF_EMPLOYED -> personalRate = personalRate.add(BigDecimal.valueOf(1));
+            case BUSINESS_OWNER -> personalRate = personalRate.add(BigDecimal.valueOf(3));
         }
 
         // Position
-        if (employment.getPosition().equals(MANAGER)) {
-            personalRate = personalRate.subtract(BigDecimal.valueOf(2));
-        }
-        if (employment.getPosition().equals(TOP_MANAGER)) {
-            personalRate = personalRate.subtract(BigDecimal.valueOf(4));
+        switch (employment.getPosition()) {
+            case MANAGER -> personalRate = personalRate.subtract(BigDecimal.valueOf(2));
+            case TOP_MANAGER -> personalRate = personalRate.subtract(BigDecimal.valueOf(4));
         }
 
         // Salary
@@ -63,11 +52,9 @@ public class ScoringService {
         }
 
         // MaritalStatus
-        if (scoringData.getMaritalStatus().equals(MARRIED)) {
-            personalRate = personalRate.subtract(BigDecimal.valueOf(3));
-        }
-        if (scoringData.getMaritalStatus().equals(DIVORCED)) {
-            personalRate = personalRate.add(BigDecimal.valueOf(1));
+        switch (scoringData.getMaritalStatus()) {
+            case MARRIED -> personalRate = personalRate.subtract(BigDecimal.valueOf(3));
+            case DIVORCED -> personalRate = personalRate.add(BigDecimal.valueOf(1));
         }
 
         // DependentAmount
@@ -85,14 +72,18 @@ public class ScoringService {
         }
 
         // Gender
-        if (scoringData.getGender().equals(Gender.FEMALE) && age >= 35 && age <= 60) {
-            personalRate = personalRate.subtract(BigDecimal.valueOf(3));
-        }
-        if (scoringData.getGender().equals(Gender.MALE) && age >= 30 && age <= 55) {
-            personalRate = personalRate.subtract(BigDecimal.valueOf(3));
-        }
-        if (scoringData.getGender().equals(Gender.NON_BINARY)) {
-            personalRate = personalRate.add(BigDecimal.valueOf(3));
+        switch (scoringData.getGender()) {
+            case MALE -> {
+                if (age >= 30 && age <= 55) {
+                    personalRate = personalRate.subtract(BigDecimal.valueOf(3));
+                }
+            }
+            case FEMALE -> {
+                if (age >= 35 && age <= 60) {
+                    personalRate = personalRate.subtract(BigDecimal.valueOf(3));
+                }
+            }
+            case NON_BINARY -> personalRate = personalRate.add(BigDecimal.valueOf(3));
         }
 
         // WorkExperience
@@ -103,7 +94,7 @@ public class ScoringService {
             exceptions.add("Current experience less than 3 months");
         }
 
-        log.info("!FINISH PERSON SCORING!");
+        log.debug("!FINISH PERSON SCORING!");
 
         if (exceptions.size() > 0) {
             throw ScoringException.createWith(exceptions);
@@ -118,9 +109,9 @@ public class ScoringService {
     }
 
     public BigDecimal scoringPerson(boolean isInsuranceEnabled, boolean isSalaryClient) {
-        log.info("!BASE PERSON SCORING!");
+        log.debug("!BASE PERSON SCORING!");
         BigDecimal personalRate = baseRate;
-        log.info("BASE RATE IN OUR BANK IS {}", baseRate);
+        log.debug("BASE RATE IN OUR BANK IS {}", baseRate);
         if (isInsuranceEnabled) {
             personalRate = personalRate.subtract(INSURANCE_RATE_REDUCTION);
         }
@@ -130,7 +121,7 @@ public class ScoringService {
         if (personalRate.compareTo(BigDecimal.ZERO) <= 0) {
             personalRate = BigDecimal.valueOf(0.1);
         }
-        log.info("!FINISH BASE SCORING. Base personal rate is ready - {}", personalRate);
+        log.debug("!FINISH BASE SCORING. Base personal rate is ready - {}", personalRate);
         return personalRate;
     }
 }

@@ -13,13 +13,8 @@ public class ScoringException extends RuntimeException {
         this.exceptions = exceptions;
     }
 
-    private String makeMessage(List<String> exceptions){
-        StringBuilder message = new StringBuilder();
-        int i = 0;
-        for (String exception : exceptions) {
-            message.append(++i).append(". ").append(exception).append(" ");
-        }
-        return message.toString();
+    private String makeMessage(List<String> exceptions) {
+        return String.join(", ", exceptions);
     }
 
     @Override

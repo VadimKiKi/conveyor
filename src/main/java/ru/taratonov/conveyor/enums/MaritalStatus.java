@@ -17,8 +17,8 @@ public enum MaritalStatus {
                 .findFirst()
                 .orElseThrow(() -> IllegalArgumentOfEnumException.createWith(
                         Arrays.stream(MaritalStatus.values())
-                        .map(MaritalStatus::getTitle)
-                        .collect(Collectors.toList())));
+                                .map(MaritalStatus::getTitle)
+                                .collect(Collectors.toList())));
     }
 
     private String title;

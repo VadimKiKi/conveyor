@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.taratonov.conveyor.dto.CreditDTO;
 import ru.taratonov.conveyor.dto.PaymentScheduleElement;
 import ru.taratonov.conveyor.dto.ScoringDataDTO;
@@ -17,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class CreditCalculationServiceTest {
 
     @InjectMocks

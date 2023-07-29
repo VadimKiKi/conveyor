@@ -17,8 +17,8 @@ public enum Position {
                 .findFirst()
                 .orElseThrow(() -> IllegalArgumentOfEnumException.createWith(
                         Arrays.stream(Position.values())
-                        .map(Position::getTitle)
-                        .collect(Collectors.toList())));
+                                .map(Position::getTitle)
+                                .collect(Collectors.toList())));
 
     }
 

@@ -18,8 +18,8 @@ public enum Gender {
                 .findFirst()
                 .orElseThrow(() -> IllegalArgumentOfEnumException.createWith(
                         Arrays.stream(Gender.values())
-                        .map(Gender::getTitle)
-                        .collect(Collectors.toList())));
+                                .map(Gender::getTitle)
+                                .collect(Collectors.toList())));
     }
 
     private String title;

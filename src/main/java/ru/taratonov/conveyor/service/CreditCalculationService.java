@@ -1,6 +1,7 @@
 package ru.taratonov.conveyor.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.taratonov.conveyor.dto.CreditDTO;
 import ru.taratonov.conveyor.dto.PaymentScheduleElement;
@@ -17,9 +18,9 @@ import java.util.List;
 @Slf4j
 @Service
 public class CreditCalculationService {
-
     private final Calendar calendar = Calendar.getInstance();
-    private final BigDecimal INSURANCE_PERCENTAGE = BigDecimal.valueOf(10);
+    @Value("${insurance.percentage}")
+    private BigDecimal INSURANCE_PERCENTAGE;
 
     // Вычисление необходимых полей для заявки клиента
     public CreditDTO calculateLoanParameters(ScoringDataDTO scoringData, BigDecimal newRate) {
@@ -48,8 +49,18 @@ public class CreditCalculationService {
     }
 
     // Вычисление ежемесячного платежа
+
+    /**
+     * ЕП = СК * КА
+     * ЕП - ежемесячный платеж
+     * СК - сумма кредита
+     * КА - коэффициент аннуитета
+     * КА = (МПС * (1 + МПС)^КП)/((1 + МПС)^КП - 1)
+     * МПС - месячная процентная ставка
+     * КП - количество платежей
+     */
     public BigDecimal calculateMonthlyPayment(BigDecimal amount, BigDecimal rate, Integer term) {
-        log.info("!START CALCULATE MONTHLY PAYMENT WITH AMOUNT - {}, RATE - {}, TERM - {}!", amount, rate, term);
+        log.debug("!START CALCULATE MONTHLY PAYMENT WITH AMOUNT - {}, RATE - {}, TERM - {}!", amount, rate, term);
 
         if (amount.compareTo(BigDecimal.ZERO) < 0 || rate.compareTo(BigDecimal.ZERO) < 0 || term < 0) {
             throw new IllegalArgumentException("Invalid value");
@@ -59,7 +70,7 @@ public class CreditCalculationService {
         BigDecimal monthlyRate = rate
                 .divide(BigDecimal.valueOf(100), 6, RoundingMode.CEILING)
                 .divide(BigDecimal.valueOf(12), 6, RoundingMode.CEILING);
-        log.info("Monthly rate is {}", monthlyRate);
+        log.debug("Monthly rate is {}", monthlyRate);
 
         // Промежуточное вычисление скобки в выражении
         BigDecimal annuityCalculationBracket = (BigDecimal.ONE.add(monthlyRate))
@@ -69,18 +80,18 @@ public class CreditCalculationService {
         // Коэффициент аннуитета
         BigDecimal annuityRatio = (annuityCalculationBracket.multiply(monthlyRate))
                 .divide(annuityCalculationBracket.subtract(BigDecimal.ONE), 6, RoundingMode.CEILING);
-        log.info("Annuity ration is {}", annuityRatio);
+        log.debug("Annuity ration is {}", annuityRatio);
 
         // Ежемесячный платеж
         BigDecimal monthlyPayment = amount.multiply(annuityRatio).setScale(2, RoundingMode.CEILING);
-        log.info("!FINISH CALCULATE MONTHLY PAYMENT. RESULT IS {}!", monthlyPayment);
+        log.debug("!FINISH CALCULATE MONTHLY PAYMENT. RESULT IS {}!", monthlyPayment);
 
         return monthlyPayment;
     }
 
     // Вычисление графиков платежей
     public List<PaymentScheduleElement> calculatePaymentSchedule(BigDecimal amount, Integer term, BigDecimal rate) {
-        log.info("!START CALCULATE PAYMENT SCHEDULE WITH AMOUNT - {}, TERM - {},  RATE - {}!", amount, term, rate);
+        log.debug("!START CALCULATE PAYMENT SCHEDULE WITH AMOUNT - {}, TERM - {},  RATE - {}!", amount, term, rate);
 
         if (amount.compareTo(BigDecimal.ZERO) < 0 || rate.compareTo(BigDecimal.ZERO) < 0 || term < 0) {
             throw new IllegalArgumentException("Invalid value");
@@ -109,13 +120,21 @@ public class CreditCalculationService {
             log.info("{} payment will be made on {}, monthly payment - {}, interest payment - {}, debt payment - {}, remaining debt - {}",
                     i, paymentDate, monthlyPayment, interestPayment, debtPayment, remainingDebt);
         }
-        log.info("!FINISH CALCULATE PAYMENT SCHEDULE!");
+        log.debug("!FINISH CALCULATE PAYMENT SCHEDULE!");
         return paymentSchedule;
     }
 
     // Вычисление ПСК
+
+    /**
+     * ПСК = (СП / СК - 1) / N
+     * ПСК - полная стоимость кредита
+     * СП - сумма платежей
+     * СК - сумма кредита
+     * N - продолжительность кредита в годах
+     */
     public BigDecimal calculatePSK(BigDecimal amount, Integer term, List<PaymentScheduleElement> scheduleElements) {
-        log.info("!START CALCULATE PSK WITH AMOUNT - {},TERM - {} AND PAYMENT SCHEDULE!", amount, term);
+        log.debug("!START CALCULATE PSK WITH AMOUNT - {},TERM - {} AND PAYMENT SCHEDULE!", amount, term);
         BigDecimal yearTerm = BigDecimal.valueOf(term).divide(BigDecimal.valueOf(12), 2, RoundingMode.CEILING);
 
 
@@ -123,7 +142,7 @@ public class CreditCalculationService {
                 .map(PaymentScheduleElement::getTotalPayment)
                 .reduce((x, y) -> x.add(y))
                 .get();
-        log.info("total amount for paying loan is {}", totalAmount);
+        log.debug("total amount for paying loan is {}", totalAmount);
 
         BigDecimal psk = totalAmount
                 .divide(amount, 6, RoundingMode.CEILING)
@@ -131,31 +150,49 @@ public class CreditCalculationService {
                 .divide(yearTerm, 6, RoundingMode.CEILING)
                 .multiply(BigDecimal.valueOf(100))
                 .setScale(3, RoundingMode.CEILING);
-        log.info("!FINISH CALCULATE PSK. RESULT IS {}!", psk);
+        log.debug("!FINISH CALCULATE PSK.");
+        log.info("Result psk  is {}!", psk);
 
         return psk;
     }
 
     // Вычисление полной стоимости кредита с учетом страховки
-    public BigDecimal calculateTotalAmount(BigDecimal amount, Boolean IsInsuranceEnabled) {
-        log.info("!START CALCULATE BASE TOTAL AMOUNT WITH AMOUNT - {}, IsInsuranceEnabled - {}!", amount, IsInsuranceEnabled);
+
+    /**
+     * ПС = СК + СС
+     * ПС - полная стоимость
+     * СК - сумма кредита
+     * СС - сумма страховки
+     */
+    public BigDecimal calculateTotalAmount(BigDecimal amount, Boolean isInsuranceEnabled) {
+        log.debug("!START CALCULATE BASE TOTAL AMOUNT WITH AMOUNT - {}, isInsuranceEnabled - {}!", amount, isInsuranceEnabled);
 
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Invalid value");
         }
 
-        if (IsInsuranceEnabled) {
+        if (isInsuranceEnabled) {
             amount = amount
                     .add(amount.multiply(INSURANCE_PERCENTAGE.divide(BigDecimal.valueOf(100), 2, RoundingMode.CEILING)));
         }
-        log.info("!FINISH CALCULATE BASE TOTAL AMOUNT. RESULT IS {}!", amount);
+        log.debug("!FINISH CALCULATE BASE TOTAL AMOUNT.");
+        log.info("Total amount is {}!", amount);
         return amount;
     }
 
     // вычисление процентов по платежу
+
+    /**
+     * ПК = ОД * ПС * КДМ * КДГ
+     * ПК - проценты по кредиту
+     * ОД - остаток долга
+     * ПС - процентная ставка
+     * КДМ - количество дней в месяце
+     * КДГ - количество дней в году
+     */
     private BigDecimal calculateInterestPayment(BigDecimal remainingDebt, BigDecimal rate, Integer numOfDaysInMonth,
                                                 Integer numOfDaysInYear) {
-        log.info("!START CALCULATE INTEREST PAYMENT WITH remainingDebt - {}, rate - {}, numOfDaysInMonth - {}, " +
+        log.debug("!START CALCULATE INTEREST PAYMENT WITH remainingDebt - {}, rate - {}, numOfDaysInMonth - {}, " +
                 "numOfDaysInYear - {}!", remainingDebt, rate, numOfDaysInMonth, numOfDaysInYear);
 
         if (remainingDebt.compareTo(BigDecimal.ZERO) < 0 || rate.compareTo(BigDecimal.ZERO) < 0 || numOfDaysInMonth < 27
@@ -169,14 +206,21 @@ public class CreditCalculationService {
                 .multiply(rateValue)
                 .multiply(BigDecimal.valueOf(numOfDaysInMonth))
                 .divide(BigDecimal.valueOf(numOfDaysInYear), 2, RoundingMode.CEILING);
-        log.info("!FINISH CALCULATE INTEREST PAYMENT. RESULT IS {}!", interestPayment);
+        log.debug("!FINISH CALCULATE INTEREST PAYMENT. RESULT IS {}!", interestPayment);
 
         return interestPayment;
     }
 
     // Вычисление суммы тела кредита
+
+    /**
+     * ТК = ЕП - ПК
+     * ТК - тело кредита
+     * ЕП - ежемесячный платеж
+     * ПК - проценты по кредиту
+     */
     private BigDecimal calculateDebtPayment(BigDecimal totalPayment, BigDecimal interestPayment) {
-        log.info("!START CALCULATE DEBT PAYMENT WITH totalPayment - {}, interestPayment - {}!",
+        log.debug("!START CALCULATE DEBT PAYMENT WITH totalPayment - {}, interestPayment - {}!",
                 totalPayment, interestPayment);
 
         if (totalPayment.compareTo(BigDecimal.ZERO) < 0 || interestPayment.compareTo(BigDecimal.ZERO) < 0) {
@@ -184,14 +228,21 @@ public class CreditCalculationService {
         }
 
         BigDecimal debtPayment = totalPayment.subtract(interestPayment).setScale(2, RoundingMode.CEILING);
-        log.info("!FINISH CALCULATE DEBT PAYMENT. RESULT IS {}!", debtPayment);
+        log.debug("!FINISH CALCULATE DEBT PAYMENT. RESULT IS {}!", debtPayment);
 
         return debtPayment;
     }
 
     // Вычисление остаточной суммы долга
+
+    /**
+     * ОСД = СК - ТК
+     * ОСД - остаточная сумма долга
+     * СК - сумма кредита, который осталось выплатить
+     * ТК - тело кредита
+     */
     private BigDecimal calculateRemainingDebt(BigDecimal amount, BigDecimal debtPayment) {
-        log.info("!START CALCULATE REMAINING DEBT WITH amount - {}, debtPayment - {}!",
+        log.debug("!START CALCULATE REMAINING DEBT WITH amount - {}, debtPayment - {}!",
                 amount, debtPayment);
 
         if (amount.compareTo(BigDecimal.ZERO) < 0 || debtPayment.compareTo(BigDecimal.ZERO) < 0) {
@@ -199,7 +250,7 @@ public class CreditCalculationService {
         }
 
         BigDecimal remainingDebt = amount.subtract(debtPayment).setScale(2, RoundingMode.CEILING);
-        log.info("!FINISH CALCULATE REMAINING DEBT. RESULT IS {}!", remainingDebt);
+        log.debug("!FINISH CALCULATE REMAINING DEBT. RESULT IS {}!", remainingDebt);
 
         return remainingDebt;
     }

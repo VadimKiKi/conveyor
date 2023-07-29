@@ -1,15 +1,13 @@
 package ru.taratonov.conveyor.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
+@Data
 @AllArgsConstructor
-@Getter
-@Setter
 public class ErrorDTO {
     private String msg;
     private LocalDateTime errorTime;

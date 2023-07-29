@@ -1,7 +1,7 @@
 package ru.taratonov.conveyor.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.taratonov.conveyor.dto.LoanApplicationRequestDTO;
 import ru.taratonov.conveyor.dto.LoanOfferDTO;
@@ -11,19 +11,14 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class OfferService {
 
     private final CreditCalculationService creditCalculationService;
     private final ScoringService scoringService;
 
-    @Autowired
-    public OfferService(CreditCalculationService creditCalculationService, ScoringService scoringService) {
-        this.creditCalculationService = creditCalculationService;
-        this.scoringService = scoringService;
-    }
-
     public List<LoanOfferDTO> createOffers(LoanApplicationRequestDTO loanApplicationRequest) {
-        log.info("!REQUEST FOR GENERATING OFFERS RECEIVED!");
+        log.debug("!REQUEST FOR GENERATING OFFERS RECEIVED!");
         return List.of(
                 generateOffer(loanApplicationRequest, false, false),
                 generateOffer(loanApplicationRequest, false, true),
@@ -34,7 +29,7 @@ public class OfferService {
 
     private LoanOfferDTO generateOffer(LoanApplicationRequestDTO loanApplicationRequest,
                                        Boolean isInsuranceEnabled, Boolean isSalaryClient) {
-        log.info("Start generate offer for {} with isInsuranceEnabled - {} and isSalaryClient - {}",
+        log.debug("Start generate offer for {} with isInsuranceEnabled - {} and isSalaryClient - {}",
                 loanApplicationRequest.getFirstName(), isInsuranceEnabled, isSalaryClient);
         BigDecimal amount = loanApplicationRequest.getAmount();
         Integer term = loanApplicationRequest.getTerm();

@@ -3,19 +3,13 @@ package ru.taratonov.conveyor.dto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import ru.taratonov.conveyor.enums.EmploymentStatus;
 import ru.taratonov.conveyor.enums.Position;
 
 import java.math.BigDecimal;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 public class EmploymentDTO {
 
     @NotNull(message = "must not be empty")

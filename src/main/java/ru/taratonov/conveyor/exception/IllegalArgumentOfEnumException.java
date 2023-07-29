@@ -14,17 +14,8 @@ public class IllegalArgumentOfEnumException extends RuntimeException {
     }
 
     private String makeMessage(List<String> values) {
-        StringBuilder message = new StringBuilder();
-        message.append("Illegal argument, must be one of: ");
-        for (int i = 0; i < values.size(); i++) {
-            if (i == values.size() - 1) {
-                message.append(values.get(i)).append(" ");
-            } else {
-                message.append(values.get(i)).append(", ");
-            }
-        }
-        message.append("or null");
-        return message.toString();
+        return String.join(" ",
+                "Illegal argument, must be one of:", String.join(", ", values), "or null");
     }
 
     @Override

@@ -5,10 +5,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.taratonov.conveyor.enums.Gender;
 import ru.taratonov.conveyor.enums.MaritalStatus;
@@ -16,10 +13,7 @@ import ru.taratonov.conveyor.enums.MaritalStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 public class ScoringDataDTO {
     @NotNull(message = "must not be empty")
     @DecimalMin(value = "10000.0", message = "must be greater or equal than 10000")
