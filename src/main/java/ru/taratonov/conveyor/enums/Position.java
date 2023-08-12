@@ -7,8 +7,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Position {
+    WORKER("worker"),
     MANAGER("manager"),
-    TOP_MANAGER("top-manager");
+    TOP_MANAGER("top-manager"),
+    MID_MANAGER("mid-manager"),
+    OWNER("owner");
 
     @JsonCreator
     static Position findValue(String findValue) {
