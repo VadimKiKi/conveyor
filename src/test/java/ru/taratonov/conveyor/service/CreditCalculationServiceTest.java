@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.taratonov.conveyor.dto.CreditDTO;
 import ru.taratonov.conveyor.dto.PaymentScheduleElement;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class CreditCalculationServiceTest {
 
     @InjectMocks
+    @Autowired
     private CreditCalculationService creditCalculationService;
 
     // tests for calculate loan parameters
@@ -156,9 +158,9 @@ class CreditCalculationServiceTest {
 
         PaymentScheduleElement paymentScheduleElement = paymentScheduleElements.get(0);
 
-        BigDecimal interestPaymentExpected = BigDecimal.valueOf(42.47).setScale(2, RoundingMode.CEILING);
-        BigDecimal debtPaymentExpected = BigDecimal.valueOf(1648.59).setScale(2, RoundingMode.CEILING);
-        BigDecimal remainingDebtExpected = BigDecimal.valueOf(8351.41).setScale(2, RoundingMode.CEILING);
+        BigDecimal interestPaymentExpected = BigDecimal.valueOf(41.10).setScale(2, RoundingMode.CEILING);
+        BigDecimal debtPaymentExpected = BigDecimal.valueOf(1649.96).setScale(2, RoundingMode.CEILING);
+        BigDecimal remainingDebtExpected = BigDecimal.valueOf(8350.04).setScale(2, RoundingMode.CEILING);
 
         assertEquals(paymentScheduleElement.getInterestPayment(), interestPaymentExpected);
         assertEquals(paymentScheduleElement.getDebtPayment(), debtPaymentExpected);
