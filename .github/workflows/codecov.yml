@@ -22,4 +22,5 @@ jobs:
       - name: Test Coverage
         uses: codecov/codecov-action@v1
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
