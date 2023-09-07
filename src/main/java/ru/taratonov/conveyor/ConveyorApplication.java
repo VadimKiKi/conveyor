@@ -15,7 +15,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
                 contact = @Contact(
                         name = "Taratonov Vadim",
                         email = "taratonovv8@bk.ru",
-                        url = "https://github.com/VadimKiKi/conveyor"
+                        url = "https://github.com/VadimTaratonov/conveyor"
                 )
         )
 )

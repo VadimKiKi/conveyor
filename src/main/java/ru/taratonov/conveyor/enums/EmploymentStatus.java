@@ -9,7 +9,8 @@ import java.util.stream.Collectors;
 public enum EmploymentStatus {
     UNEMPLOYED("unemployed"),
     SELF_EMPLOYED("self-employed"),
-    BUSINESS_OWNER("business-owner");
+    BUSINESS_OWNER("business-owner"),
+    EMPLOYED("employed");
 
     @JsonCreator
     static EmploymentStatus findValue(String findValue) {

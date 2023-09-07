@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 
 public enum MaritalStatus {
     DIVORCED("divorced"),
-    MARRIED("married");
+    MARRIED("married"),
+    SINGLE("single"),
+    WIDOW_WIDOWER("widow-widower");
 
     @JsonCreator
     static MaritalStatus findValue(String findValue) {

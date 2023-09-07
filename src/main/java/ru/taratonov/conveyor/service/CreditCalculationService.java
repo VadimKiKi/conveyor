@@ -142,6 +142,9 @@ public class CreditCalculationService {
                 .map(PaymentScheduleElement::getTotalPayment)
                 .reduce((x, y) -> x.add(y))
                 .get();
+        totalAmount = totalAmount
+                .add(scheduleElements.get(scheduleElements.size() - 1).getRemainingDebt())
+                .setScale(0,RoundingMode.CEILING);
         log.debug("total amount for paying loan is {}", totalAmount);
 
         BigDecimal psk = totalAmount
