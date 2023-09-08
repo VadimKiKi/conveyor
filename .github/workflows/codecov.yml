@@ -19,6 +19,9 @@ jobs:
           java-version: '17'
       - name: Maven Verify
         run: mvn -B clean verify
+      - name: Filter Coverage
+        run: |
+          bash <(curl -s https://codecov.io/bash) -s src/main/java/ru/taratonov/conveyor/service/
       - name: Test Coverage
         uses: codecov/codecov-action@v1
         env:
