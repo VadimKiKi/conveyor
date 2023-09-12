@@ -1,6 +1,5 @@
 package ru.taratonov.conveyor.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -86,13 +85,13 @@ class ScoringServiceTest {
         when(employmentDTO.getWorkExperienceCurrent()).thenReturn(2);
         when(employmentDTO.getWorkExperienceTotal()).thenReturn(2);
 
-        assertThrows(ScoringException.class, () -> {
-            scoringService.scoringPerson(scoringDataDTO);
-        });
+        assertThrows(ScoringException.class, () ->
+                scoringService.scoringPerson(scoringDataDTO)
+        );
     }
 
     @Test
-    public void testScoringPerson_InsuranceEnabledAndSalaryClient() {
+    void testScoringPerson_InsuranceEnabledAndSalaryClient() {
         boolean isInsuranceEnabled = true;
         boolean isSalaryClient = true;
 
@@ -104,7 +103,7 @@ class ScoringServiceTest {
     }
 
     @Test
-    public void testScoringPerson_InsuranceEnabledAndNotSalaryClient() {
+    void testScoringPerson_InsuranceEnabledAndNotSalaryClient() {
         boolean isInsuranceEnabled = true;
         boolean isSalaryClient = false;
 
@@ -112,11 +111,11 @@ class ScoringServiceTest {
 
         BigDecimal expected = baseRate.subtract(BigDecimal.valueOf(3));
 
-        Assertions.assertEquals(expected, result);
+        assertEquals(expected, result);
     }
 
     @Test
-    public void testScoringPerson_NotInsuranceEnabledAndSalaryClient() {
+    void testScoringPerson_NotInsuranceEnabledAndSalaryClient() {
         boolean isInsuranceEnabled = false;
         boolean isSalaryClient = true;
 
@@ -124,11 +123,11 @@ class ScoringServiceTest {
 
         BigDecimal expected = baseRate.subtract(BigDecimal.valueOf(1));
 
-        Assertions.assertEquals(expected, result);
+        assertEquals(expected, result);
     }
 
     @Test
-    public void testScoringPerson_NotInsuranceEnabledAndNotSalaryClient() {
+    void testScoringPerson_NotInsuranceEnabledAndNotSalaryClient() {
         boolean isInsuranceEnabled = false;
         boolean isSalaryClient = false;
 
@@ -136,7 +135,7 @@ class ScoringServiceTest {
 
         BigDecimal expected = baseRate;
 
-        Assertions.assertEquals(expected, result);
+        assertEquals(expected, result);
     }
 
 }
