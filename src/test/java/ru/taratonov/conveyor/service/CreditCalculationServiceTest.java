@@ -29,7 +29,7 @@ class CreditCalculationServiceTest {
     // tests for calculate loan parameters
     @Test
     void calculateLoanParameters_LessThanZeroParameter() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             BigDecimal rate = BigDecimal.valueOf(-1);
             creditCalculationService.calculateLoanParameters(new ScoringDataDTO(), rate);
         });
@@ -57,7 +57,7 @@ class CreditCalculationServiceTest {
     @Test
     void calculateMonthlyPayment_LessThanZeroParameter() {
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             BigDecimal amount = BigDecimal.valueOf(-1).setScale(2, RoundingMode.CEILING);
             BigDecimal rate = BigDecimal.valueOf(5);
             Integer term = 6;
@@ -112,7 +112,7 @@ class CreditCalculationServiceTest {
     // tests for calculate payment schedule
     @Test
     void calculatePaymentSchedule_LessThanZeroParameter() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             BigDecimal amount = BigDecimal.valueOf(-1).setScale(2, RoundingMode.CEILING);
             BigDecimal rate = BigDecimal.valueOf(5);
             Integer term = 6;
@@ -167,10 +167,6 @@ class CreditCalculationServiceTest {
         assertEquals(paymentScheduleElement.getRemainingDebt(), remainingDebtExpected);
     }
 
-    // tests for calculate psk
-    // нет возможности нормально протестировать ПСК, так как существует погрешность в вычислениях
-    // в настоящем проекте с вычислениями из интернета
-
     // Tests for calculate total amount
     @Test
     void calculateTotalAmount_IsInsuranceEnabled() {
@@ -198,7 +194,7 @@ class CreditCalculationServiceTest {
 
     @Test
     void calculateTotalAmount_LessThanZeroAmount() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             BigDecimal amount = BigDecimal.valueOf(-1).setScale(2, RoundingMode.CEILING);
             boolean isInsuranceEnabled = false;
             creditCalculationService.calculateTotalAmount(amount, isInsuranceEnabled);
